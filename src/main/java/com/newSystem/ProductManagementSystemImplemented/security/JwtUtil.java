@@ -11,13 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 
 @Component
@@ -28,13 +26,11 @@ public class JwtUtil {
     @Autowired
     private UserRepository userRepository;
 
-    public JwtUtil(){
-
-    }
-
     public String generateToken(String username) {
+        Users user = userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         Map<String,Object> claims = new HashMap<>();
+        claims.put("roles" , List.of(user.getUserRoles().name()));
         return Jwts.builder()
                 .claims()
                 .add(claims)
@@ -51,7 +47,6 @@ public class JwtUtil {
         byte[] keyBytes = Decoders.BASE64URL.decode(SECRET);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-
 
     public String extractUsername(String token) {
         return extractClaim(token , Claims::getSubject);
@@ -83,7 +78,6 @@ public class JwtUtil {
         return extractClaim(token , Claims::getExpiration);
     }
 
-
     public Users getLoggedInUser(){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -108,5 +102,4 @@ public class JwtUtil {
         }
         return null;
     }
-
 }

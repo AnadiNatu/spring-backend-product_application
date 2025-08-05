@@ -20,6 +20,9 @@ public interface ProductOrderRepository extends JpaRepository<ProductOrder, Long
     @Query("SELECT po FROM ProductOrder po JOIN po.users u WHERE u.id = :userId")
     List<ProductOrder> findByUsers_Id(@Param("userId") Long userId);
 
+    @Query("SELECT po FROM ProductOrder po JOIN po.products p WHERE p.id = :id")
+    List<ProductOrder> findByProducts_Id(@Param("id") Long id);
+
     @Query("SELECT po FROM ProductOrder po JOIN po.users u JOIN po.products p WHERE u.id = :userId AND LOWER(p.productName) = LOWER(:productName)")
     Optional<ProductOrder> findByUserIdAndProductName(@Param("userId") Long userId , @Param("productName") String productName);
 

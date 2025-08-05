@@ -15,6 +15,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -76,6 +77,14 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(authenticationResponse);
     }
 
+    @PostMapping("/upload-profile-picture/{userId}")
+    public ResponseEntity<?> uploadProfilePicture(
+            @PathVariable Long userId,
+            @RequestParam("file") MultipartFile file) {
+
+        String filename = authService.updateProfilePicture(userId, file);
+        return ResponseEntity.ok("Profile picture uploaded: " + filename);
+    }
 
     @PostMapping("/forgot-password")
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest){

@@ -21,6 +21,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -40,6 +41,7 @@ public class WebConfig {
                 .csrf(request -> request.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(request -> request.requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/uploads/products/**").permitAll()
                         .requestMatchers("/api/admin/**").hasAnyAuthority(UserRoles.ADMIN.name())
                         .requestMatchers("/api/user/**").hasAnyAuthority(UserRoles.USER.name())
                         .anyRequest().authenticated())
@@ -47,8 +49,6 @@ public class WebConfig {
                 .addFilterBefore(jwtAuthFilter , UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
-
-
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -70,18 +70,19 @@ public class WebConfig {
         CorsConfiguration corsConfig = new CorsConfiguration();
         corsConfig.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
         corsConfig.setAllowedMethods(Arrays.asList("GET","POST" ,"PUT" , "DELETE" , "OPTION"));
-        corsConfig.setAllowedHeaders(Arrays.asList("Authorization" , "Content-Type"));
+//        corsConfig.setAllowedHeaders(Arrays.asList("Authorization" , "Content-Type"));
+        corsConfig.setAllowedHeaders(List.of("*"));
         corsConfig.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**" , corsConfig);
+//        source.registerCorsConfiguration("/api/**" , corsConfig);
+        source.registerCorsConfiguration("/**" , corsConfig);
 
         return source;
     }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-
         return configuration.getAuthenticationManager();
     }
 }

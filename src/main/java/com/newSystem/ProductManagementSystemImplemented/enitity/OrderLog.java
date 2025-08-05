@@ -1,24 +1,22 @@
 package com.newSystem.ProductManagementSystemImplemented.enitity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 
 @Entity
-@Data
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(name = "order_log")
 public class OrderLog {
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
 
     @ManyToOne(optional = false , fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
@@ -41,4 +39,24 @@ public class OrderLog {
     @Column(name = "total_order_price")
     private double totalOrderPrice;
 
+//    Can create a field for order name , combination of user name and product name;
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

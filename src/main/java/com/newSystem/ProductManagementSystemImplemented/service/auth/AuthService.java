@@ -13,13 +13,21 @@ import com.newSystem.ProductManagementSystemImplemented.security.JwtUtil;
 import com.newSystem.ProductManagementSystemImplemented.security.UserServiceImpl;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authorization.method.AuthorizeReturnObject;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.UUID;
+
 
 @Service
 public class AuthService {
@@ -37,6 +45,8 @@ public class AuthService {
     @Autowired
     private AppMapper mapper;
 
+    @Value("${file.user-upload-dir}")
+    private String uploadDir;
 
     @PostConstruct
     public void  createAdmin(){
@@ -55,6 +65,7 @@ public class AuthService {
                 users.setPhoneNumber("0000000000");
                 users.setUserRoles(UserRoles.ADMIN);
                 users.setProductOrders(null);
+                users.setProfilePicture(null);
                 userRepository.save(users);
 
                 System.out.println("Admin created successfully");
@@ -76,17 +87,35 @@ public class AuthService {
             users.setPassword(new BCryptPasswordEncoder().encode(signUpDTO.getPassword()));
             users.setPhoneNumber(signUpDTO.getPhoneNumber());
             users.setUserRoles(UserRoles.USER);
+            users.setProfilePicture(null);
             Users createdUsers = userRepository.save(users);
 
             return mapper.toUserDTO(createdUsers);
-//          UserSignUpErrorException - RuntimeException
         }catch(Exception ex){
             throw new UsernameNotFoundException("Failed to signup user: " + ex.getMessage());
         }
     }
 
+    public String updateProfilePicture(Long userId , MultipartFile file){
+        try{
+            Users users = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+            String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            Path filePath = Paths.get(uploadDir , filename);
+
+            Files.createDirectories(filePath.getParent());
+            Files.write(filePath , file.getBytes());
+
+            users.setProfilePicture(filename);
+            userRepository.save(users);
+
+            return filename;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to upload profile picture: " + e.getMessage());
+        }
+    }
+
     public boolean hasUserWithEmail(String username){
-//      UserWithEmailNotFoundException - RuntimeException
         try {
             return userRepository.findByEmail(username).isPresent();
         }catch(Exception ex){
@@ -95,7 +124,6 @@ public class AuthService {
     }
 
     public void sendResetToken(String email){
-//      PasswordResetTokenException - RuntimeException
         try {
             Users users = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User with email " + email + " not found"));
             String resetToken = jwtUtil.generateToken(email);
@@ -112,7 +140,6 @@ public class AuthService {
     }
 
     public boolean validateResetToken(String token , String email){
-//      PasswordResetTokenException - RuntimeException
         try {
             String extractedEmail = jwtUtil.extractUsername(token);
 
@@ -124,15 +151,11 @@ public class AuthService {
 
             return jwtUtil.isTokenValid(token, userDetails);
         }catch(Exception ex){
-//            return false;
             throw new PasswordResetTokenException("Failed to reset password: " + ex.getMessage());
         }
     }
 
     public String resetPassword(String email , String token , String newPassword){
-//      ExpiredTokenException - IllegalArgumentException
-//      PasswordResetTokenException - RuntimeException
-
         try {
             if (!validateResetToken(token, email)) {
                 throw new ExpiredTokenException("Invalid or expired token");

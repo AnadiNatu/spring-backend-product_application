@@ -83,6 +83,8 @@ public class Users implements UserDetails {
         return true;
     }
 
+    @Column(name = "profile_photo")
+    private String profilePicture;
 
     @Override
     public String toString() {

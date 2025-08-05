@@ -84,12 +84,13 @@ public class AppMapper {
                 .productDesc(product.getProductDesc())
                 .productInventory(product.getProductInventory())
                 .price(product.getPrice())
+                .imageUrl(product.getImageUrl())
                 .productOrderIds(orderIds)
                 .build();
 
     }
 
-    public OrderLogInfoDTO toOrderDTO(Users user , Products product , ProductOrder productOrder , Date deliveredOn , int productInventory , double totalOrderPrice){
+    public OrderLogInfoDTO toOrderLogInfoDTO(Users user , Products product , ProductOrder productOrder , Date deliveredOn , int productInventory , double totalOrderPrice){
 
         OrderLogInfoDTO dto = new OrderLogInfoDTO();
 
@@ -102,6 +103,21 @@ public class AppMapper {
 
         return dto;
 
+    }
+
+    public OrderInfoDTO toOrderInfoDTO(ProductOrder order){
+
+        return OrderInfoDTO.builder()
+                .orderId(order.getOrderId())
+                .orderDate(toDate(order.getOrderDate()))
+                .estimateDeliveryDate(toDate(order.getEstimateDeliveryDate()))
+                .deliveryDate(toDate(order.getDeliveryDate()))
+                .orderQuantity(order.getOrderQuantity())
+                .orderStatus(order.getOrderStatus())
+                .orderPrice(order.getOrderPrice())
+                .productName(order.getProducts().productName)
+                .userName(order.getUsers().getFname() + " " + order.getUsers().getFname())
+                .build();
     }
 
     public UserDTO toUserDTO(Users user) {
@@ -163,18 +179,18 @@ public class AppMapper {
         );
     }
 
-    public OrderDetailsDTO toOrderDetailsDTO(ProductOrder order) {
-        return new OrderDetailsDTO(
-                order.getOrderId(),
-                toDate(order.getEstimateDeliveryDate()),
-                toDate(order.getDeliveryDate()),
-                order.getOrderQuantity(),
-                order.getOrderStatus(),
-                order.getOrderPrice(),
-                order.getProducts().getProductName(),
-                order.getProducts().getPrice()
-        );
-    }
+//    public OrderDetailsDTO toOrderDetailsDTO(ProductOrder order) {
+//        return new OrderDetailsDTO(
+//                order.getOrderId(),
+//                toDate(order.getEstimateDeliveryDate()),
+//                toDate(order.getDeliveryDate()),
+//                order.getOrderQuantity(),
+//                order.getOrderStatus(),
+//                order.getOrderPrice(),
+//                order.getProducts().getProductName(),
+//                order.getProducts().getPrice()
+//        );
+//    }
 
     public OrderProductListDTO toOrderProductListDTO(ProductOrder order){
 

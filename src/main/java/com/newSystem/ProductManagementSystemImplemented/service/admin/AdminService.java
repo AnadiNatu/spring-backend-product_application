@@ -12,10 +12,15 @@ import com.newSystem.ProductManagementSystemImplemented.respository.ProductOrder
 import com.newSystem.ProductManagementSystemImplemented.respository.ProductRepository;
 import com.newSystem.ProductManagementSystemImplemented.respository.UserRepository;
 import com.newSystem.ProductManagementSystemImplemented.security.JwtUtil;
+import com.newSystem.ProductManagementSystemImplemented.service.image_storage.ImageStorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -38,10 +43,52 @@ public class AdminService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    public ProductDTO createProduct(CreateProductDTO createProductDTO){
+// Utility functions
+
+    public ProductDTO getProductById(Long id){
+
+        return productRepository.findById(id).map(product ->mapper.toProductDTO(product))
+        .orElseThrow(() -> new RuntimeException("Product by this Id" +id+ "not found"));
+    }
+
+    public ProductDTO getProductByName(String name){
+        return productRepository.findByProductNameIgnoreCase(name).map(product -> mapper.toProductDTO(product)).orElseThrow(() -> new RuntimeException("Product with that name " +name+ "do not exist"));
+    }
+
+    public UserInfoDTO getUserById(Long id){
+        return userRepository.findById(id).map(user -> mapper.toUserInfoDto(user)).orElseThrow(() -> new RuntimeException("User with id was not found" +id));
+    }
+
+    public UserInfoDTO getUserByName(String name){
+        return userRepository.findUsersByNameContaining(name).map(user -> mapper.toUserInfoDto(user)).orElseThrow(() -> new RuntimeException("User that name doesn't exist" + name));
+    }
+
+    public OrderInfoDTO getProductOrderById(Long id){
+        return orderRepository.findById(id).map(order -> mapper.toOrderInfoDTO(order)).orElseThrow(() -> new RuntimeException("Order not found"));
+    }
+
+    public List<OrderInfoDTO> getProductOrderByUser_Id(Long userId){
+        return orderRepository.findByUsers_Id(userId).stream().map(order -> mapper.toOrderInfoDTO(order)).toList();
+    }
+
+    public List<OrderInfoDTO> getProductOrderByProduct_Id(Long productId){
+        return orderRepository.findByProducts_Id(productId).stream().map(order -> mapper.toOrderInfoDTO(order)).toList();
+    }
+
+
+    @Autowired
+    private ImageStorageService imageStorageService;
+
+    public ProductDTO createProduct(CreateProductDTO createProductDTO , MultipartFile imageFile){
         try {
             Products product = mapper.fromCreateProductDTO(createProductDTO);
-
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            System.out.println("Logged in user: " + auth.getName());
+            System.out.println("Authorities: " + auth.getAuthorities());
+            if (imageFile != null && !imageFile.isEmpty()){
+                String imageUrl = imageStorageService.save(imageFile);
+                product.setImageUrl(imageUrl);
+            }
             Products savedProduct = productRepository.save(product);
 
             return mapper.toProductDTO(savedProduct);
@@ -50,7 +97,9 @@ public class AdminService {
         }
     }
 
+
     public OrderLog createOrderLog(Long userId , Long productId , Long orderId , Date deliveredOn , int productInventory , double totalOrderPrice){
+        Users userFromLoggedIn = jwtUtil.getLoggedInUser();
 
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + userId));

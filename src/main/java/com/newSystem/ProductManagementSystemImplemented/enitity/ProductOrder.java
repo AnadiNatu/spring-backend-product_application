@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(exclude = {"users" , "products"})
 public class ProductOrder {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_id")
@@ -44,10 +43,12 @@ public class ProductOrder {
     @Column(name = "order_price" ,nullable = false)
     private double orderPrice;
 
+    @ToString.Exclude
     @ManyToOne(optional = false , fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id" , nullable = false)
     private Users users;
 
+    @ToString.Exclude
     @ManyToOne(optional = false , fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id" , nullable = false)
     private Products products;

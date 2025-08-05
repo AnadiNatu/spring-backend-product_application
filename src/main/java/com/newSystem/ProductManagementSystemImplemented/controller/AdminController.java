@@ -6,8 +6,10 @@ import com.newSystem.ProductManagementSystemImplemented.service.admin.AdminServi
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
@@ -15,15 +17,86 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/admin/")
 @CrossOrigin("*")
+//The error that is coming create-product:1  Access to XMLHttpRequest at 'http://localhost:8080/api/admin/product' from origin 'http://localhost:4200' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
 public class AdminController {
 
     @Autowired
     private AdminService adminService;
 
-    @PostMapping("product")
-    public ResponseEntity<?> createProduct(@RequestBody CreateProductDTO productDTO){
+    @GetMapping("userBy/{id}")
+    public ResponseEntity<UserInfoDTO> getUserById(@PathVariable Long id) {
+        try {
+            UserInfoDTO user = adminService.getUserById(id);
+            return ResponseEntity.ok(user);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
-        ProductDTO product = adminService.createProduct(productDTO);
+    @GetMapping("searchUser/{name}")
+    public ResponseEntity<UserInfoDTO> getUserByName(@PathVariable(name = "name") String name) {
+        try {
+            UserInfoDTO user = adminService.getUserByName(name);
+            return ResponseEntity.ok(user);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("orderBy/{id}")
+    public ResponseEntity<OrderInfoDTO> getOrderById(@PathVariable Long id) {
+        try {
+            OrderInfoDTO order = adminService.getProductOrderById(id);
+            return ResponseEntity.ok(order);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("orderBy/user/{userId}")
+    public ResponseEntity<List<OrderInfoDTO>> getOrderByUserId(@PathVariable(name = "userId") Long id){
+        try {
+            List<OrderInfoDTO> orders = adminService.getProductOrderByUser_Id(id);
+            return ResponseEntity.ok(orders);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("orderBy/product/{productId}")
+    public ResponseEntity<List<OrderInfoDTO>> getOrdersByProductId(@PathVariable Long productId) {
+        try {
+            List<OrderInfoDTO> orders = adminService.getProductOrderByProduct_Id(productId);
+            return ResponseEntity.ok(orders);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("products/{id}")
+    public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
+        try {
+            ProductDTO product = adminService.getProductById(id);
+            return ResponseEntity.ok(product);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("searchProduct")
+    public ResponseEntity<ProductDTO> getProductByName(@RequestParam String name) {
+        try {
+            ProductDTO product = adminService.getProductByName(name);
+            return ResponseEntity.ok(product);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping(value = "product" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> createProduct(@ModelAttribute CreateProductDTO productDTO ){
+
+        ProductDTO product = adminService.createProduct(productDTO , productDTO.getImageFile());
 
         if (product == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);

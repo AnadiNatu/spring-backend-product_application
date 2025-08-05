@@ -31,11 +31,15 @@ public class Products {
     @Column(name = "inventory" , nullable = false)
     public int productInventory;
 
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @Column(nullable = false)
     public double price ;
 
+
     @Builder.Default
+    @ToString.Exclude
     @OneToMany(mappedBy = "products" , cascade = CascadeType.ALL , orphanRemoval = true)
     private List<ProductOrder> productOrders = new ArrayList<>();
 

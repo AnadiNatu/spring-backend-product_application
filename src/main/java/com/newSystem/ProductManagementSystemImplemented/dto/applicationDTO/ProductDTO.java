@@ -13,12 +13,11 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class ProductDTO {
-
     private Long productId;
     private  String productName;
     private  String productDesc;
     private int productInventory;
     private double price ;
+    private String imageUrl;
     private List<Long> productOrderIds;
-
 }
