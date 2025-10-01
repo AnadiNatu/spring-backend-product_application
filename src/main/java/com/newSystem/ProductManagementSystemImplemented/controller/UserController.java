@@ -61,7 +61,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No Products Found");
         }
         return ResponseEntity.status(HttpStatus.OK).body(productDTO);
-
     }
 
     @GetMapping("product/all/{name}")

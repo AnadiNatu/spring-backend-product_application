@@ -17,3 +17,4 @@ public class UpdateProductDTO {
     private int price;
 
 }
+// Use a map on the frontend side to make a dynamic dto with only the field changed for update

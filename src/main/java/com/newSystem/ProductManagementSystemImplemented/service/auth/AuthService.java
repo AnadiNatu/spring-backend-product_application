@@ -30,17 +30,14 @@ public class AuthService {
     private UserServiceImpl userService;
     @Autowired
     private JwtUtil jwtUtil;
-
     @Autowired
     private EmailService emailService;
-
     @Autowired
     private AppMapper mapper;
 
 
     @PostConstruct
     public void  createAdmin(){
-
         try {
             Optional<Users> optionalUsers = userRepository.findByUserRoles(UserRoles.ADMIN);
 
@@ -69,6 +66,7 @@ public class AuthService {
     public UserDTO signupUser(SignUpDTO signUpDTO){
         try {
             Users users = new Users();
+
 
             users.setFname(signUpDTO.getFname());
             users.setLname(signUpDTO.getLname());

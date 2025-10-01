@@ -6,8 +6,10 @@ import com.newSystem.ProductManagementSystemImplemented.service.admin.AdminServi
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
@@ -15,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/admin/")
 @CrossOrigin("*")
+//The error that is coming create-product:1  Access to XMLHttpRequest at 'http://localhost:8080/api/admin/product' from origin 'http://localhost:4200' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
 public class AdminController {
 
     @Autowired

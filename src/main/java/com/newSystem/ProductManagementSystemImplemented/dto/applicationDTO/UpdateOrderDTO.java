@@ -12,11 +12,10 @@ import java.util.Date;
 @NoArgsConstructor
 @Builder
 public class UpdateOrderDTO {
-
     private Date orderDate;
     private Date estimateDeliveryDate;
     private Date deliveryDate;
     private int orderQuantity;
     private String productName;
-
 }
+// Use a map on the frontend side to make a dynamic dto with only the field changed for update
